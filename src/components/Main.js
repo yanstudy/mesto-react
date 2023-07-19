@@ -127,7 +127,7 @@ function Main(props) {
       <PopupWithForm
         name={"deletePopup"}
         title={"Вы уверены?"}
-        isOpen={props.isEditAvatarPopupOpen}
+        isOpen={props.isDeleteCardPopupOpen}
         onClose={props.onClosePopup}
       ></PopupWithForm>
       <PopupWithForm

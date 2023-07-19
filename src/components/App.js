@@ -7,6 +7,7 @@ function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
+  const [isDeleteCardPopupOpen, setDeleteCardPopupOpen] = useState(false);
   const [isImagePopupOpen, setImagePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
 
@@ -21,11 +22,17 @@ function App() {
   function handleAddPlaceClick(e) {
     setAddPlacePopupOpen(true);
   }
+
+  function handleDeleteCardClick(e) {
+    setDeleteCardPopupOpen(true);
+  }
+
   function closeAllPopups() {
     setEditAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
     setAddPlacePopupOpen(false);
     setImagePopupOpen(false);
+    setDeleteCardPopupOpen(false);
     setSelectedCard({});
   }
 
@@ -43,10 +50,12 @@ function App() {
           onEditProfile={handleEditProfileClick}
           onAddPlace={handleAddPlaceClick}
           onEditAvatar={handleEditAvatarClick}
+          onDeleteCard={handleDeleteCardClick}
           isEditProfilePopupOpen={isEditProfilePopupOpen}
           isAddPlacePopupOpen={isAddPlacePopupOpen}
           isEditAvatarPopupOpen={isEditAvatarPopupOpen}
           isImagePopupOpen={isImagePopupOpen}
+          isDeleteCardPopupOpen={isDeleteCardPopupOpen}
           onClosePopup={closeAllPopups}
           selectedCard={selectedCard}
           handleCardClick={handleCardClick}
