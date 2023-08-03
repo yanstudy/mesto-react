@@ -9,8 +9,10 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
+import DeleteCardPopup from "./DeleteCardPopup";
 
 function App() {
+  // переменные состояния попапов
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
@@ -20,6 +22,7 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     api
@@ -39,35 +42,32 @@ function App() {
   }, []);
 
   function handleCardLike(card) {
-    // Снова проверяем, есть ли уже лайк на этой карточке
+    // проверяем, есть ли лайк на этой карточке
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
 
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api.changeLikeCardStatus(card._id, isLiked).then((newCard) => {
-      setCards((state) => state.map((c) => (c._id === card._id ? newCard : c)));
-    });
+    api
+      .changeLikeCardStatus(card._id, isLiked)
+      .then((newCard) => {
+        setCards((state) =>
+          state.map((c) => (c._id === card._id ? newCard : c))
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
-  function handleCardDelete(card) {
-    api.deleteCard(card._id).then((result) => {
-      setCards((state) => state.filter((c) => c._id != card._id));
-    });
-  }
-
-  function handleEditAvatarClick(e) {
+  function handleEditAvatarClick() {
     setEditAvatarPopupOpen(true);
   }
 
-  function handleEditProfileClick(e) {
+  function handleEditProfileClick() {
     setEditProfilePopupOpen(true);
   }
 
-  function handleAddPlaceClick(e) {
+  function handleAddPlaceClick() {
     setAddPlacePopupOpen(true);
-  }
-
-  function handleDeleteCardClick(e) {
-    setDeleteCardPopupOpen(true);
   }
 
   function closeAllPopups() {
@@ -85,6 +85,7 @@ function App() {
   }
 
   function handleUpdateUser(data) {
+    setIsLoading(true);
     api
       .editProfile(data)
       .then((user) => {
@@ -93,10 +94,12 @@ function App() {
       })
       .catch((err) => {
         console.log(err); // выведем ошибку в консоль
-      });
+      })
+      .finally(() => setIsLoading(false));
   }
 
   function handleUpdateAvatar(link) {
+    setIsLoading(true);
     api
       .editAvatar(link)
       .then((data) => {
@@ -105,10 +108,12 @@ function App() {
       })
       .catch((err) => {
         console.log(err); // выведем ошибку в консоль
-      });
+      })
+      .finally(() => setIsLoading(false));
   }
 
   function handleAddNewPlace(data) {
+    setIsLoading(true);
     api
       .addNewCard(data)
       .then((newCard) => {
@@ -117,7 +122,27 @@ function App() {
       })
       .catch((err) => {
         console.log(err); // выведем ошибку в консоль
-      });
+      })
+      .finally(() => setIsLoading(false));
+  }
+
+  function handleCardDelete(card) {
+    setSelectedCard(card);
+    setDeleteCardPopupOpen(true);
+  }
+
+  function confirmDeleteCard() {
+    setIsLoading(true);
+    api
+      .deleteCard(selectedCard._id)
+      .then((result) => {
+        setCards((state) => state.filter((c) => c._id != selectedCard._id));
+        closeAllPopups();
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => setIsLoading(false));
   }
 
   return (
@@ -128,7 +153,6 @@ function App() {
           onEditProfile={handleEditProfileClick}
           onAddPlace={handleAddPlaceClick}
           onEditAvatar={handleEditAvatarClick}
-          onDeleteCard={handleDeleteCardClick}
           handleCardClick={handleCardClick}
           onCardLike={handleCardLike}
           onCardDelete={handleCardDelete}
@@ -139,23 +163,26 @@ function App() {
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
           onUpdateUser={handleUpdateUser}
+          isLoading={isLoading}
         />
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
           onAddPlace={handleAddNewPlace}
+          isLoading={isLoading}
         />
 
-        <PopupWithForm
-          name={"deletePopup"}
-          title={"Вы уверены?"}
+        <DeleteCardPopup
           isOpen={isDeleteCardPopupOpen}
           onClose={closeAllPopups}
-        ></PopupWithForm>
+          isLoading={isLoading}
+          onDeleteCard={confirmDeleteCard}
+        />
         <EditAvatarPopup
           isOpen={isEditAvatarPopupOpen}
           onClose={closeAllPopups}
           onUpdateAvatar={handleUpdateAvatar}
+          isLoading={isLoading}
         />
 
         <ImagePopup

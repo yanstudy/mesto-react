@@ -1,17 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PopupWithForm from "./PopupWithForm";
 
-function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
+function AddPlacePopup({ isOpen, onClose, onAddPlace, isLoading }) {
   const [nameOfPlace, setNameOfPlace] = useState("");
   const [linkOfPlace, setLinkOfPlace] = useState("");
 
   function handleChangeNameOfPlace(e) {
-    e.preventDefault();
     setNameOfPlace(e.target.value);
   }
 
   function handleChangeLinkOfPlace(e) {
-    e.preventDefault();
     setLinkOfPlace(e.target.value);
   }
   function handleAddPlaceSubmit(e) {
@@ -22,6 +20,13 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
     });
   }
 
+  useEffect(() => {
+    if (isOpen) {
+      setNameOfPlace("");
+      setLinkOfPlace("");
+    }
+  }, [isOpen]);
+
   return (
     <PopupWithForm
       name={"newPlacePopup"}
@@ -29,6 +34,7 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleAddPlaceSubmit}
+      isLoading={isLoading}
     >
       <div className="popup__input-wrapper">
         <input
@@ -41,6 +47,7 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
           minLength="2"
           maxLength="30"
           onChange={handleChangeNameOfPlace}
+          value={nameOfPlace}
         />
         <span className="popup__input-error nameOfPlaceInput-error"></span>
       </div>
@@ -53,6 +60,7 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
           placeholder="Ссылка на картинку"
           required
           onChange={handleChangeLinkOfPlace}
+          value={linkOfPlace}
         />
         <span className="popup__input-error placeInput-error"></span>
       </div>
