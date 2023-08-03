@@ -28,8 +28,8 @@ class Api {
       method: "PATCH",
       headers: this.headers,
       body: JSON.stringify({
-        name: data.nameInput,
-        about: data.jobInput,
+        name: data.name,
+        about: data.about,
       }),
     }).then((res) => this._checkResponse(res));
   }
@@ -66,7 +66,11 @@ class Api {
     }).then((res) => this._checkResponse(res));
   };
 
-  editAvatar({ link }) {
+  changeLikeCardStatus = (cardsId, isLiked) => {
+    return isLiked ? this.removeLike(cardsId) : this.addLike(cardsId);
+  };
+
+  editAvatar(link) {
     return fetch(`${this.baseUrl}/users/me/avatar`, {
       method: "PATCH",
       headers: this.headers,
