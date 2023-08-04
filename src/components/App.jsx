@@ -2,7 +2,6 @@ import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
 import { useEffect, useState } from "react";
-import PopupWithForm from "./PopupWithForm";
 import ImagePopup from "./ImagePopup";
 import { api } from "../utils/Api";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
@@ -57,7 +56,7 @@ function App() {
         console.log(err);
       });
   }
-
+  // функции открытия попапов
   function handleEditAvatarClick() {
     setEditAvatarPopupOpen(true);
   }
@@ -136,7 +135,7 @@ function App() {
     api
       .deleteCard(selectedCard._id)
       .then((result) => {
-        setCards((state) => state.filter((c) => c._id != selectedCard._id));
+        setCards((state) => state.filter((c) => c._id !== selectedCard._id));
         closeAllPopups();
       })
       .catch((err) => {
@@ -173,6 +172,8 @@ function App() {
         />
 
         <DeleteCardPopup
+          name={"deletePopup"}
+          title={"Вы уверены?"}
           isOpen={isDeleteCardPopupOpen}
           onClose={closeAllPopups}
           isLoading={isLoading}

@@ -2,15 +2,15 @@ import { useEffect, useRef } from "react";
 import PopupWithForm from "./PopupWithForm";
 
 function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, isLoading }) {
-  const avatar = useRef();
+  const avatarInput = useRef();
 
   function handleSubmit(e) {
-    onUpdateAvatar(avatar.current.value);
+    onUpdateAvatar(avatarInput.current.value);
   }
 
   useEffect(() => {
     if (isOpen) {
-      avatar.current.value = "";
+      avatarInput.current.value = "";
     }
   }, [isOpen]);
 
@@ -31,7 +31,7 @@ function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, isLoading }) {
           name="link"
           placeholder="Введите ссылку на новый аватар"
           required
-          ref={avatar}
+          ref={avatarInput}
         />
         <span className="popup__input-error linkOfAvatarInput-error"></span>
       </div>

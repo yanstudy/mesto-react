@@ -1,8 +1,33 @@
+import { useRef, useEffect } from "react";
 function ImagePopup(props) {
+  const popup = useRef();
+  // установка слушателей закрытия попапа по клавише esc и по оверлею при монтированнии и удаление при размонтировании
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        props.onClose();
+      }
+    };
+
+    const closePopupOverlay = (e) => {
+      if (e.currentTarget === e.target) {
+        props.onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+    popup.current.addEventListener("mousedown", closePopupOverlay);
+
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      popup.current.removeEventListener("mousedown", closePopupOverlay);
+    };
+  });
   return (
     <section
       className={`popup popup_dark ${props.isOpen ? "popup_opened" : ""}`}
       id={`${props.name}`}
+      ref={popup}
     >
       <div className="popup__image-container">
         <button
