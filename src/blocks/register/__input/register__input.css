@@ -1,0 +1,41 @@
+.register__input {
+  border: 0;
+  max-width: 358px;
+  background-color: inherit;
+  padding-bottom: 13px;
+  border-bottom: 2px solid rgba(204, 204, 204, 1);
+  height: 27px;
+  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 17px;
+  width: 100%;
+  color: #fff;
+  font-family: "Inter";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.register__input:focus {
+  outline: none;
+}
+
+.register__input::placeholder {
+  color: #ccc;
+  font-family: "Inter";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.register__input:first-child {
+  margin-bottom: 30px;
+}
+
+@media (max-width: 370px) {
+  .register__input {
+    max-width: 260px;
+  }
+}

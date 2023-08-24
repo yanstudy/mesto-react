@@ -43,11 +43,15 @@ function PopupWithForm({
     };
 
     document.addEventListener("keydown", handleEsc);
-    popup.current.addEventListener("mousedown", closePopupOverlay);
+    if (popup.current) {
+      popup.current.addEventListener("mousedown", closePopupOverlay);
+    }
 
     return () => {
       document.removeEventListener("keydown", handleEsc);
-      popup.current.removeEventListener("mousedown", closePopupOverlay);
+      if (popup.current) {
+        popup.current.removeEventListener("mousedown", closePopupOverlay);
+      }
     };
   });
 

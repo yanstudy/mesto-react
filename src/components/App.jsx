@@ -9,6 +9,13 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
+import { Routes, Route } from "react-router-dom";
+import Login from "./Login";
+import Register from "./Register";
+import InfoTooltip from "./InfoTooltip";
+import * as authApi from "../utils/ApiAuth";
+import { getToken, removeToken } from "../utils/token";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 function App() {
   // переменные состояния попапов
@@ -17,9 +24,13 @@ function App() {
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
   const [isDeleteCardPopupOpen, setDeleteCardPopupOpen] = useState(false);
   const [isImagePopupOpen, setImagePopupOpen] = useState(false);
+  const [isInfoToolTipPopupOpen, setInfoToolTipPopupOpen] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
+  const [user, setUser] = useState({});
+
   const [cards, setCards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,12 +80,17 @@ function App() {
     setAddPlacePopupOpen(true);
   }
 
+  function handleInfooToolTipClick() {
+    setInfoToolTipPopupOpen(true);
+  }
+
   function closeAllPopups() {
     setEditAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
     setAddPlacePopupOpen(false);
     setImagePopupOpen(false);
     setDeleteCardPopupOpen(false);
+    setInfoToolTipPopupOpen(false);
     setSelectedCard({});
   }
 
@@ -144,19 +160,97 @@ function App() {
       .finally(() => setIsLoading(false));
   }
 
+  const cbRegister = async (dataUser) => {
+    await authApi
+      .register(dataUser)
+      .then((data) => {
+        if (data) {
+          setInfoToolTipPopupOpen(true);
+          setUser(data.data);
+          setRegistrationSuccess(true);
+        }
+      })
+      .catch((err) => {
+        setRegistrationSuccess(false);
+        setInfoToolTipPopupOpen(true);
+        console.log(err);
+      });
+  };
+
+  const cbLogin = async (data) => {
+    const tokenLogin = await authApi
+      .authorize(data)
+      .catch((err) => console.log(err));
+    if (tokenLogin) {
+      authApi
+        .getContent(tokenLogin.token)
+        .then((dataUser) => {
+          if (dataUser) {
+            setUser(dataUser.data);
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  const cbLogout = () => {
+    removeToken();
+    setUser(null);
+  };
+
+  const token = getToken();
+  useEffect(() => {
+    if (token) {
+      authApi
+        .getContent(token)
+        .then((dataUser) => {
+          if (dataUser) {
+            setUser(dataUser.data);
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [token]);
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          handleCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-          cards={cards}
-        />
+        <Header email={user?.email} onLogout={cbLogout} />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute user={user}>
+                <Main
+                  onEditProfile={handleEditProfileClick}
+                  onAddPlace={handleAddPlaceClick}
+                  onEditAvatar={handleEditAvatarClick}
+                  handleCardClick={handleCardClick}
+                  onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
+                  cards={cards}
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sign-up"
+            element={
+              <ProtectedRoute onlyUnAuth user={user}>
+                <Register onRegister={cbRegister} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sign-in"
+            element={
+              <ProtectedRoute onlyUnAuth user={user}>
+                <Login onLogin={cbLogin} />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -190,6 +284,12 @@ function App() {
           card={selectedCard}
           onClose={closeAllPopups}
           isOpen={isImagePopupOpen}
+        />
+
+        <InfoTooltip
+          isOpen={isInfoToolTipPopupOpen}
+          onClose={closeAllPopups}
+          success={registrationSuccess}
         />
       </div>
     </CurrentUserContext.Provider>
