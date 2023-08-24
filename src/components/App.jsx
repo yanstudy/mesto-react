@@ -30,7 +30,6 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [user, setUser] = useState({});
-
   const [cards, setCards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
